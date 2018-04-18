@@ -1,68 +1,65 @@
-NPRE 555 CP1 “Monte Carlo Code of Neutron Transport in a 2D slab”
+NPRE 555 CP2 “P1 and P3 Numerical Solutions for Neutron Transport in a 1D infinite slab”
 By Muhammad Abdelghany
 PhD Student at the NPRE department at the UIUC
 ***********************************************
 
-This code is made using MATLAB and is composed of two main files.
-The first file is called “cp1_cyc.m”. This is the main file, which is used to make a run
-for a specific number of cycles that is required to be performed to carry out our calculation
-of the multiplication factor (Keffective), and the flux distribution over the width of the
-slab.
-
-The second file is a function called “ke” which is the main core of the code. This file
-returns the value of the multiplication factor for each cycle, as we run the main file
- “cp1_cyc.m”.
+This code is made using MATLAB and is Composed of 2 folders, one is for P1 solution and
+the other is for P2 solution. Each folder have 2 files, one for the solution using Mark’s
+Boundary conditions at the vacuum boundary and the other is for the solution using Marshak’s
+Boundary Conditions.
 
 The Details of Each File:
 *************************
 
-1. “cp1_cyc.m”
---------------
+1. “P1Mark.m” in the P1 folder
+------------------------------
 
-This file starts with specifying the number of cycles needed for our run, then it loops 
-over the function “ke” which return the value of “k_effective” for each cycle, as 
-calculated by the second file. Each vale of “k_effective” is stored in a row matrix 
-called “m” The size of this loop is equal to the inputed number of cycles. Then it 
-calculate the average value of K_effective over all the cycles by taking the average 
-of the elements in the matrix “m”.
+In this file, you can calculate the P1 approximation of the scalar flux in the slab assuming
+Mark’s boundary conditions at the vacuum boundaries, where the scalar flux is assumed to 
+vanish there. The code starts with specifying the width of the slab (L) and the cross-sections,
+then the number of mesh points (k) which you can changed according to your preference of 
+accuracy. The code then builds the (S) and (A) matrices and in the first step it takes care
+of the Mark’s BCs by specifying the 1st and kth rows of the (A) Matrix.
+Next it finds the inverse of the (A) matrix and calculate the flux matrix (phi). 
+At the end, a plot of flux (phi) vs the width of the slab (x) is generated.
 
-2. “ke.m”
----------
+2. “P1Marshak.m” in the P1 folder
+---------------------------------
 
-This file starts with specifying the number of particles through the variable “npart”,
-which can be changed according to the needed accuracy. Next, it starts a for-loop
-on theses particles, inside each of them we track the path of the neutrons inside the
-slab. For each particle “j”, its position is started at x(j), y(j) by generating 
-a random variable that is uniformly distributed between [0Cm , 100Cm] for x(i) and between 
-[0Cm , 1Cm] for y(i). “x” and “y” are treated differently because “x” is finite, but “y”
-is infinite.
-After that it checks whether the particle is born at the left region or the right region,
-and specify which cross-sections it should use.
-Next, it samples randomly the travele distance “r”, and it also generates a 
-uniform random number for the angle “theta” between [0, 2*pi], and then calculate for the
-new position. After that it checks whether the particle is still in the first or the second
-region, and according to that check wether the particle will be absorbed or not. If
-absorbed it will generate k_infinity neutrons, which then is assigned as the flux 
-contribution of particle “j” at the position x(j) , y(j). If the particle neither absorbed
-nor leaked form the system, the loop will continue to track the new positions of the 
-particle due to the scattering interaction, till it is absorbed.
-the code also have a counter “history(j)” that calculate the number of scattering events
-happend before the particle is absorbed. At the end, it calculates the flux at each position
-“x” due to the contribution from all the particles. At this point we should discretize the space 
-“x” into intervlas, I choose them to be 100 intervals after making some iterations to check
-the a convienient, in order to fit the calculated flux at each space mesh.
-We draw the flux distribution from all particles as a function of “x”.
-We also calculate the integrated fux “alpha” all over “x” and find the total number of 
-neutrons exist in the slab, which can be used to calculate the multiplication factor, by 
-dividing this integrated flux by the initial number of particle “npart”.
+This file is exactly similar to the previous one “P1Mark.m”, and starts with specifying the
+ number of space points (k) and the width of the slab (L). The only difference is that, 
+while building the (S) and (A) matrices, in the first step it takes care of the Marshak’s 
+BCs by specifying the 1st and kth rows of the (A) Matrix. Marshak’s boundary conditions 
+assumes that the  incoming neutron currents are zero at the vacuum boundaries. 
 
+3. “P3Mark.m” in the P3 folder
+------------------------------
 
-The Additional Folder “CP1 without Cycles”
-******************************************
+In this file, you can calculate the P3 approximation of the scalar flux in the slab assuming
+Mark’s boundary conditions at the vacuum boundaries, where the scalar flux is assumed to 
+vanish there. The code starts with specifying the width of the slab (L) and the 
+cross-sections, then the number of mesh points (k) which you can changed according to your
+preference of accuracy. The code is developed to implement an iterative scheme of the (F1)
+and (F0) and to find the scalar flux after matching a certain conversion criterion (mx_dif).
+The code starts with specifying an arbitrary initial guess for (F0) and (F1) corresponding
+to the 1st iteration, then it calculates the values of (F0) and (F1) at each mesh point for
+each iteration. Then, at each iteration it assumes the initial values of (F1) of the two 
+boundary points that are not possible to be calculated from the (F1) equations to be equal
+to the corresponding values of the nearest neighboring points.
+Next, for each iteration the code implement Mark’s BCs for the two boundary points for (F0)
+interms of (F1). Then it calculates the scalar flux (phi) for each mesh point and calculates
+ the difference in (phi) between each two successive iteration for each mesh point and 
+ ompare the maximum of this difference with the pre-specified convergence criterion (mx_dif).
+After the convergence criterion is satisfied, the code displays the number of iterations (n)
+required and then generate a plot of the flux (phi) vs the width of the slab (x).
 
-It include two codes, exactly similar to this code but with removing the option of 
-carrying out the calculations for multiple cycles, but it is only for one cycle.
-One of these codes have the slab is discretized into 100 meshes, and the other is 
-discretized into 1000 meshes, while calculating the flux distribution. This is to study
-the effect of refining the discretization of the space and check whether this will enhance
-the shape of the final flux distribution or not.
+2. “P3Marshak.m” in the P3 folder
+---------------------------------
+
+This file is exactly similar to the previous one “P3Mark.m”, and starts with specifying the
+number of space points (k) and the width of the slab (L). The only difference is that, it 
+implement the equations required by applying the Marshak’s boundary conditions during each
+iteration for the two boundary points for (F0) in terms of (F1). At the end, the code 
+displays the number of iterations (n) required to satisfy the conversion criterion and then
+generate a plot of the flux (phi) vs the width of the slab (x).
+
